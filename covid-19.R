@@ -70,7 +70,7 @@ colnames(WA_today)[1] <- 'Date'
 
 #run this once each morning to build time series data as updated by CDC, CDC must update each day to be accurate
 WA_data_log <- rbind(WA_data_log, WA_today)
-
+WA_data_log
 #scatter plot
 # ggplot(data=covid_data, mapping=aes(y=Cases.Reported, x=fips, color=Severity)) +
 #   geom_point() +
