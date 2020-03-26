@@ -2,20 +2,21 @@ library(usmap)
 library(ggplot2)
 
 #download csv from same source CDC tracks data
-covid_data <- read.csv('http://cdc.gov/coronavirus/2019-ncov/map-data-cases.csv', header = TRUE, stringsAsFactors = FALSE)
-
-covid_data$Cases.Reported
+covid_data <- read.csv('http://cdc.gov/coronavirus/2019-ncov/map-data-cases.csv', header = TRUE, stringsAsFactors = FALSE, check.names = FALSE)
+covid_data <- covid_data[,1:(ncol(covid_data)-3)]
+covid_data
+covid_data$`Cases Reported`
 #class(covid_data)
 
-covid_data <- covid_data[covid_data$Name != "District of Columbia" 
-                         & covid_data$Name != "Guam" 
-                         & covid_data$Name != "Marshall Islands" 
-                         & covid_data$Name != "American Samoa" 
-                         & covid_data$Name != "Palau"
-                         & covid_data$Name != "Northern Marianas"
-                         & covid_data$Name != "Puerto Rico"
-                         & covid_data$Name != "Micronesia"
-                         & covid_data$Name != "Virgin Islands"
+covid_data <- covid_data[covid_data$Jurisdiction != "District of Columbia" 
+                         & covid_data$Jurisdiction != "Guam" 
+                         & covid_data$Jurisdiction != "Marshall Islands" 
+                         & covid_data$Jurisdiction != "American Samoa" 
+                         & covid_data$Jurisdiction != "Palau"
+                         & covid_data$Jurisdiction != "Northern Marianas"
+                         & covid_data$Jurisdiction != "Puerto Rico"
+                         & covid_data$Jurisdiction != "Micronesia"
+                         & covid_data$Jurisdiction != "Virgin Islands"
                          ,]
 #nrow(covid_data)
 #ncol(covid_data)
@@ -38,7 +39,7 @@ for (x in 1:nrow(covid_data)) {
 }
 
 #setting column from character to numeric
-covid_data$Cases.Reported <- as.numeric(covid_data$Cases.Reported)
+covid_data$`Cases Reported` <- as.numeric(covid_data$`Cases Reported`)
 
 #verifying class
 #class(covid_data$Cases.Reported)
@@ -50,11 +51,11 @@ covid_data
 
 #categorizing severity of case numbers for each state
 for (i in 1:nrow(covid_data)) {
-  if ((covid_data[i,3] / sum(covid_data$Cases.Reported)) > 0.08) {
+  if ((covid_data[i,3] / sum(covid_data$`Cases Reported`)) > 0.08) {
     covid_data[i,7] <- "Severe, > 8% caseload"
-  } else if ((covid_data[i,3] / sum(covid_data$Cases.Reported)) > 0.04) {
+  } else if ((covid_data[i,3] / sum(covid_data$`Cases Reported`)) > 0.04) {
     covid_data[i,7] <- "Moderate, > 4% caseload"
-  } else if ((covid_data[i,3] / sum(covid_data$Cases.Reported)) > 0.01) {
+  } else if ((covid_data[i,3] / sum(covid_data$`Cases Reported`)) > 0.01) {
     covid_data[i,7] <- "Mild, > 1% caseload"
   } else {
     covid_data[i,7] <- "Less than 1% caseload"
@@ -62,7 +63,7 @@ for (i in 1:nrow(covid_data)) {
 }
 
 #getting just WA data and appending today's date to the data
-WA_today <- cbind(Sys.Date(), subset(covid_data, Name == 'Washington'))
+WA_today <- cbind(Sys.Date(), subset(covid_data, Jurisdiction == 'Washington'))
 colnames(WA_today)[1] <- 'Date'
 
 #running this only for the first time to intialize the WA data, ran on 2020-03-18
@@ -77,7 +78,7 @@ WA_data_log
 #   theme(axis.text.x = element_text(hjust = 1, size=10, angle=45))
 
 
-ggplot(data=covid_data, aes(fips, Cases.Reported)) +
+ggplot(data=covid_data, aes(fips, `Cases Reported`)) +
   geom_bar(stat = "identity", aes(fill=Severity)) +
   labs(x = "State", y = "Reported Cases", title = "U.S. COVID-19 Caseload", fill = "Severity") +
   theme(axis.text.x = element_text(hjust = 1, size=10, angle=45))
